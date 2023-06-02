@@ -19,7 +19,7 @@ resource "aws_codepipeline" "aws_codepipeline" {
       category         = "Source"
       owner            = "ThirdParty"
       provider         = "GitHub"
-      version          = "2"
+      version          = "1"
       output_artifacts = ["SourceArtifact"]
 
       configuration = {
