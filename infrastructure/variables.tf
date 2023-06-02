@@ -26,7 +26,6 @@ variable "github_token" {
   description = "Personal access token from Github"
   type        = string
   sensitive   = true
-  default     = "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"
 }
 
 variable "port_app_server" {
