@@ -17,10 +17,11 @@ a {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   color: white;
   text-align: center;
-  padding: 10px;
+  padding: 2px;
 }
 
 .about {
   padding: 60px;
+  padding-top: 300px;
 }
 </style>
