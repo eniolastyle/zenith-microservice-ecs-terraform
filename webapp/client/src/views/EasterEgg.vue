@@ -3,8 +3,9 @@
 
 <template>
   <div class="about">
-    <h3>Just a demo ;)</h3>
-    
+    <h3>No Search.. Just a</h3>
+    <h4>DEMO!!!</h3>
+    <p>Thank you sir/ma</p>
   </div>
 </template>
 
@@ -20,6 +21,7 @@ h3 {
 
 .about {
   padding: 60px;
+  padding-top: 300px;
 }
 
 </style>

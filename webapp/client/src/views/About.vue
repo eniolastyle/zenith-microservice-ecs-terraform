@@ -3,17 +3,18 @@
 
 <template>
   <div class="about">
-    <h3>Frontend layer demo</h3>
+    <h3>Zenith</h3>
     <h4>This code is written in Vue.js</h4>
-    
   </div>
 </template>
 
 <style scoped>
-
-h3, h4, p, a {
+h3,
+h4,
+p,
+a {
   text-shadow: gray;
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   color: white;
   text-align: center;
   padding: 10px;
@@ -22,5 +23,4 @@ h3, h4, p, a {
 .about {
   padding: 60px;
 }
-
 </style>

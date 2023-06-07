@@ -72,11 +72,13 @@ h1 {
   text-shadow: gray;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   color: black;
+  font-size: 15px;
 }
 h2 {
   text-shadow: gray;
   color: black;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-size: 15px;
 }
 
 .button {
@@ -174,6 +176,7 @@ h2 {
   overflow: hidden;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   background-size: cover;
+  font-size: 15px;
 }
 
 </style>
