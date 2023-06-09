@@ -370,6 +370,7 @@ module "codepipeline" {
 # ------- Creating Bucket to store assets accessed by the Back-end -------
 module "s3_assets" {
   source      = "./modules/s3"
+  public_s3 = true
   bucket_name = "assets-${var.aws_region}-${random_id.RANDOM_ID.hex}"
 }
 
