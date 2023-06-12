@@ -24,7 +24,7 @@ phases:
           sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./webapp/server/src/swagger/swagger.js
         fi
       - echo Running Checkov on infrastructure code...
-      - checkov -d ./infrastructure
+      - checkov -d ./infrastructure --framework terraform_plan
   build:
     commands:
       - echo Build started on `date`
