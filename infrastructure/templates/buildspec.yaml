@@ -1,8 +1,13 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      python: 3.8
   pre_build:
     commands:
+      - echo Installing Checkov...
+      - pip3 install checkov
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       - echo Checking for build type
@@ -10,6 +15,8 @@ phases:
         if expr "${FOLDER_PATH}" : ".*client*" ; then
           echo "Client build, embedding frontend layer file with ALB backend DNS"
           sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./webapp/client/src/services/RestServices.js
+          echo "Running Checkov on client code..."
+          checkov -d ./webapp/client
         else
           echo "Server build, adding ECS Task Role to the task definition file"
           sed -i "3i\"taskRoleArn\": \"arn:aws:iam::<AWS_ACCOUNT_ID>:role/<ECS_TASK_ROLE>\"," ./infrastructure/templates/taskdef.json
@@ -17,12 +24,18 @@ phases:
           sed -i "s|DYNAMODB_TABLE|$DYNAMODB_TABLE|g" ./webapp/server/src/app.js
           echo "Adding Swagger host"
           sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./webapp/server/src/swagger/swagger.js
+          echo "Running Checkov on server code..."
+          checkov -d ./webapp/server
         fi
+      - echo Running Checkov on infrastructure code...
+      - checkov -d ./infrastructure
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t $REPO_URL $FOLDER_PATH
+      - echo Running Checkov scan on the Docker image...
+      - checkov -d $REPO_URL:$IMAGE_TAG
   post_build:
     commands:
       - echo Build completed on `date`
