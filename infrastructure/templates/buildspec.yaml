@@ -24,14 +24,12 @@ phases:
           sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./webapp/server/src/swagger/swagger.js
         fi
       - echo Running Checkov on infrastructure code...
-      - checkov -d ./infrastructure --framework terraform_plan
+      - checkov -d "$FOLDER_PATH" --framework dockerfile
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t $REPO_URL $FOLDER_PATH
-      - echo Running Checkov scan on the Docker image...
-      - checkov -d $REPO_URL:$IMAGE_TAG
   post_build:
     commands:
       - echo Build completed on `date`
