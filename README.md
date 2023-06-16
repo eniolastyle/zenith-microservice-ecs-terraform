@@ -1,137 +1,249 @@
-# zenith-microservice-ecs-terraform-checkov
+# ECS Fargate Microservice Zenith
 
-## Introduction
+![Zenith]
 
-This repository contains Terraform code to deploy a solution that showcases the use of AWS resources for building a scalable and secure microservice architecture on Amazon ECS. The code demonstrates the implementation of DevOps practices and leverages Terraform and Checkov for infrastructure provisioning and security checks.
+Zenith is a microservice-based application built using AWS ECS Fargate. It provides a scalable and resilient architecture for deploying and managing microservices in a containerized environment.
 
-## Table of Contents
+This repository contains the source code and configuration files for deploying and running Zenith on AWS ECS Fargate. It includes the necessary infrastructure setup, Dockerfiles, and sample microservices.
 
-- [Solution Overview](#solution-overview)
-- [General Information](#general-information)
-- [Infrastructure](#infrastructure)
-- [Application Code](#application-code)
-- [Usage](#usage)
-- [Checkov](#static-analysis-with-checkov)
-- [Security](#security)
-- [License](#license)
+## Features
 
-## Solution Overview
-
-This repository provides a sample solution that illustrates the deployment of a microservice architecture using Amazon ECS. The solution incorporates various DevOps practices, including infrastructure as code, continuous integration and delivery (CI/CD), and security checks. By leveraging AWS services, the solution aims to minimize defects during deployments, facilitate remediation, mitigate deployment risks, and improve the flow into production environments.
-
-## General Information
-
-The project is divided into two main parts:
-
-- **Code**: Contains the code for the running application, which includes the client and server components.
-- **Infrastructure**: Contains the Terraform code responsible for deploying the necessary AWS resources for the solution.
+- Microservice architecture: Zenith is designed as a collection of independent microservices, each serving a specific business function.
+- AWS ECS Fargate: Zenith leverages the power of AWS Elastic Container Service (ECS) and Fargate to deploy and manage containerized microservices.
+- Scalability and elasticity: The infrastructure is designed to automatically scale based on the demand and load on the microservices.
+- High availability and fault tolerance: Zenith implements fault-tolerant patterns to ensure the availability of the microservices even in the event of failures.
+- Monitoring and logging: The application integrates with AWS CloudWatch for monitoring and logging purposes, providing insights into the system's behavior.
+- CI/CD pipeline: The repository includes a sample CI/CD pipeline configuration for automating the deployment process.
+- Checkov integration: Zenith incorporates Checkov, an open-source tool for static code analysis of infrastructure-as-code (IaC), to identify and prevent misconfigurations and security vulnerabilities in the AWS resources.
 
 ## Infrastructure
 
-The Infrastructure folder contains the Terraform code required to provision AWS resources. The Modules folder houses reusable Terraform modules, while the Templates folder contains configuration files used within the modules. By default, the Terraform state is stored locally on the machine where the commands are executed. However, you have the option to configure a Terraform backend such as an AWS S3 bucket or Terraform Cloud for remote state storage. The Terraform code in this repository deploys the following AWS resources:
+The Infrastructure folder contains the terraform code to deploy the AWS resources. The Modules folder has been created to store the Terraform modules used in this project. The Templates folder contains the different configuration files needed within the modules. The Terraform state is stored locally in the machine where you execute the terraform commands, but feel free to set a Terraform backend configuration like an AWS S3 Bucket or Terraform Cloud to store the state remotely. The AWS resources created by the script are detailed bellow:
 
-- AWS networking resources following high availability (HA) best practices
-- 2 Elastic Container Registry (ECR) repositories
-- 1 ECS cluster
-- 2 ECS services
-- 2 task definitions
-- 4 autoscaling policies with CloudWatch alarms
-- 2 Application Load Balancers (ALBs) for public access
-- IAM roles and policies for ECS tasks, CodeBuild, CodeDeploy, and CodePipeline
-- Security groups for ALBs and ECS tasks
-- 2 CodeBuild projects
-- 2 CodeDeploy applications
-- 1 CodePipeline pipeline
-- 2 S3 buckets (one for CodePipeline artifacts and another for assets accessible within the application)
-- 1 DynamoDB table (used by the application)
-- 1 SNS topic for notifications
+AWS Networking resources, following best practices for HA
+2 ECR Repositories
+1 ECS Cluster
+2 ECS Services
+2 Task definitions
+4 Autoscaling Policies + Cloudwatch Alarms
+2 Application Load Balancer (Public facing)
+IAM Roles and policies for ECS Tasks, CodeBuild, CodeDeploy and CodePipeline
+Security Groups for ALBs and ECS tasks
+2 CodeBuild Projects
+2 CodeDeploy Applications
+1 CodePipeline pipeline
+2 S3 Buckets (1 used by CodePipeline to store the artifacts and another one used to store assets accessible from within the application)
+1 DynamoDB table (used by the application)
+1 SNS topic for notifications
 
-### Infrastructure Architecture
+![ecs-fargate](https://github.com/DevBarham/ECS-Fargate-Microservice-Zenith/assets/58726365/542b36c8-4829-402c-bfd1-a13e1762a69b)
 
-The following diagram represents the architecture of the deployed infrastructure:
+## Prerequisites
 
-![Infrastructure Architecture](Documentation_assets/Infrastructure_architecture.png)
+Before deploying Zenith, ensure that you have the following prerequisites:
 
-### Infrastructure Considerations
+- An AWS account with appropriate permissions to create resources like ECS clusters, task definitions, etc.
+- Docker installed on your local machine for building and testing the microservices locally.
+- AWS CLI configured with the appropriate credentials to interact with your AWS account.
+- Familiarity with AWS ECS, Fargate, and other related services.
+- Checkov installed on your local machine for infrastructure code analysis.
 
-The task definition template (`Infrastructure/Templates/taskdef.json`) used to enable Blue/Green deployments in ECS has hardcoded values for the memory and CPU settings of the server and client applications. If desired, you can modify these values dynamically using commands like `sed` in CodeBuild.
+There are general steps that you must follow in order to launch the infrastructure resources.
 
-To receive notifications about the status of each completed CodeDeploy deployment, consider subscribing to the SNS topic created by this code.
+Before launching the solution please follow the next steps:
+
+Install Terraform, use Terraform v0.13 or above. You can visit this Terraform official webpage to download it.
+Configure the AWS credentials into your machine (~/.aws/credentials). You need to use the following format:
+    
+```shell
+    [AWS_PROFILE_NAME]
+    aws_access_key_id = Replace_with_the_correct_access_Key
+    aws_secret_access_key = Replace_with_the_correct_secret_Key
+```
+Generate a GitHub token. You can follow this steps to generate it.
+Usage
+1. Fork this repository and create the GitHub token granting access to this new repository in your account.
+
+2. Clone that recently forked repository from your account (not the one from the aws-sample organization) and change the directory to the appropriate one as shown below:
+```shell
+cd Infrastructure/
+```
+3. Run Terraform init to download the providers and install the modules
+```shell
+terraform init
+``` 
+4. Run the terraform plan command, feel free to use a tfvars file to specify the variables. You need to set at least the following variables:
+
+- aws_profile = according to the profiles name in ~/.aws/credentials
+- aws_region = the AWS region in which you want to create the resources
+- environment_name = a unique name used for concatenation to give place to the resources names
+- github_token = your GitHub token, the one generated a few steps above
+- repository_name = your GitHub repository name
+- repository_owner = the owner of the GitHub repository used
+```shell
+terraform plan -var aws_profile="your-profile" -var aws_region="your-region" -var environment_name="your-env" -var github_token="your-personal-token" -var repository_name="your-github-repository" -var repository_owner="the-github-repository-owner"
+```
+Example of the previous command with replaced dummy values:
+```shell
+terraform plan -var aws_profile="development" -var aws_region="eu-central-1" -var environment_name="developmentenv" -var github_token="your-personal-token" -var repository_name="your-github-repository" -var repository_owner="the-github-repository-owner"
+```
+5. Review the terraform plan, take a look at the changes that terraform will execute:
+
+```shell
+terraform apply -var aws_profile="your-profile" -var aws_region="your-region" -var environment_name="your-env" -var github_token="your-personal-token" -var repository_name="your-github-repository" -var repository_owner="the-github-repository-owner"
+```
+6. Once Terraform finishes the deployment, open the AWS Management Console and go to the AWS CodePipeline service. You will see that the pipeline, which was created by this Terraform code, is in progress. Add some files and DynamoDB items as mentioned here. Once the pipeline finished successfully and the before assets were added, go back to the console where Terraform was executed, copy the application_url value from the output and open it in a browser.
+
+7. In order to access the also implemented Swagger endpoint, copy the swagger_endpoint value from the Terraform output and open it in a browser.
+
+Autoscaling test
+To test how your application will perform under a peak of traffic, a stress test configuration file is provided.
+
+For this stress test Artillery is being used. Please be sure to install it following these steps.
+
+Once installed, please change the ALB DNS to the desired layer to test (front/backend) in the target attribute, which you can copy from the generated Terraform output, or you can also search it in the AWS Management Console.
+
+To execute it, run the following commands:
+
+Frontend layer:
+```shell
+
+artillery run Code/client/src/tests/stresstests/stress_client.yml
+Backend layer:
+```
+```shell
+artillery run Code/server/src/tests/stresstests/stress_server.yml
+```
+To learn more about Amazon ECS Autoscaling, please take a look to the documentation.
 
 ## Application Code
+## Client app
+The Client folder contains the code to run the frontend. This code is written in Vue.js and uses the port 80 in the deployed version, but when run localy it uses port 3000.
 
-### Client App
+The application folder structure is separeted in components, views and services, despite the router and the assets.
 
-The Client folder contains the code for the frontend application, which is built with Vue.js. In the deployed version, the application uses port 80, but when running locally, it uses port 3000. The folder structure includes components, views, services, router, and assets.
+## Client considerations due to demo proposals
+The assets used by the client application are going to be requested from the S3 bucket created with this code. Please add 3 images to the created S3 bucket.
 
-#### Client Considerations
+The DynamoDB structure used by the client application is the following one:
+```shell
+  - id: N (HASH)
+  - path: S
+  - title: S
+  ```
+Feel free to change the structure as needed. But in order to have full demo experience, please add 3 DynamoDB Items with the specified structure from above. Below is an example.
 
-To ensure a seamless demo experience, follow these considerations:
+Note: The path attribute correspondes to the S3 Object URL of each added asset from the previous step.
 
-1. The client application retrieves assets from the S3 bucket created by this code. Add three images to the S3 bucket.
-2. The client application expects a DynamoDB structure with the following attributes:
+Example of a DynamoDB Item:
+```shell
+{
+  "id": {
+    "N": "1"
+  },
+  "path": {
+    "S": "https://mybucket.s3.eu-central-1.amazonaws.com/MyImage.jpeg"
+  },
+  "title": {
+    "S": "My title"
+  }
+}
+ ```
+## Server app
+The Server folder contains the code to run the backend. This code is written in Node.js and uses the port 80 in the deployed version, but when run localy it uses port 3001.
 
-   - `id` (Number, primary
+Swagger was also implemented in order to document the APIs. The Swagger endpoint is provided as part of the Terraform output, you can grab the output link and access it through a browser.
 
- key)
-   - `path` (String)
-   - `title` (String)
+The server exposes 3 endpoints:
 
-   Add three DynamoDB items with the specified structure, where `path` corresponds to the S3 object URL for each added asset.
+/status: serves as a dummy endpoint to know if the server is up and running. This one is used as the health check endpoint by the AWS ECS resources
+/api/getAllProducts: main endpoint, which returns all the Items from an AWS DynamoDB table
+/api/docs: the Swagger endpoint for the API documentation
+Cleanup
+Run the following command if you want to delete all the resources created before:
+```shell
+terraform destroy -var aws_profile="your-profile" -var AWS_REGION="your-region" -var environment_name="your-env" -var github_token="your-personal-token" -var repository_name="your-github-repository" - var repository_owner="the-github-repository-owner"
+```
 
-#### Server App
+## Getting Started
 
-The Server folder contains the code for the backend application, which is built with Node.js. Similar to the client application, the deployed version uses port 80, while the local version uses port 3001. The server exposes three endpoints:
+To get started with Zenith, follow these steps:
 
-- `/status`: A dummy endpoint to check if the server is running (used for health checks).
-- `/api/getAllProducts`: The main endpoint that returns all items from an AWS DynamoDB table.
-- `/api/docs`: The Swagger endpoint for API documentation.
-
-A Swagger endpoint is implemented to document the APIs. You can access it through the provided Terraform output link.
-
-## Static Analysis with Checkov
-To run static analysis on the Terraform code in this repository using Checkov, follow these steps:
-
-Install Checkov by running the following command: `pip install checkov`
-Run Checkov on the Terraform code by running the following command: `checkov --directory <path-to-code>`
-View the results of the check either on the terminal or from the UI.
-For more information on Checkov, see github.com.
-
-## Usage
-
-Follow the steps below to launch the infrastructure resources:
-
-1. Fork this repository and create a GitHub token that grants access to the forked repository in your account.
-2. Clone the forked repository from your account (not the one from the aws-sample organization) and navigate to the appropriate directory:
-
-   ```bash
-   cd Infrastructure/
-   ```
-
-3. Run `terraform init` to download the necessary providers and install the modules.
-4. Run `terraform plan` to review the execution plan. You can specify variables using a `.tfvars` file or pass them directly as command-line arguments. The required variables include:
-   - `aws_profile`: The name of the AWS profile in `~/.aws/credentials`.
-   - `aws_region`: The AWS region in which to create the resources.
-   - `environment_name`: A unique name used for resource naming conventions.
-   - `github_token`: Your personal GitHub token generated in a previous step.
-   - `repository_name`: The name of your GitHub repository.
-   - `repository_owner`: The owner of the GitHub repository.
-
-   Example command:
+1. Clone this repository to your local machine:
 
    ```shell
-   terraform plan -var aws_profile="your-profile" -var aws_region="your-region" -var environment_name="your-env" -var github_token="your-personal-token" -var repository_name="your-github-repository" -var repository_owner="the-github-repository-owner"
+   git clone https://github.com/eniolastyle/zenith-microservice-ecs-terraform-checkov.git
    ```
 
-5. Review the execution plan and verify the changes that Terraform will apply.
-6. Run `terraform apply` to deploy the resources. Use the same variable values as in the previous step.
-7. Once Terraform finishes deployment, go to the AWS Management Console, navigate to the AWS CodePipeline service, and check the status of the pipeline created by this Terraform code. Follow the steps mentioned in the [Client Considerations](#client-considerations) section to add files and DynamoDB items. After the pipeline successfully completes and the required assets are added, copy the `application_url` value from the Terraform output and open it in a browser.
-8. To access the implemented Swagger endpoint, copy the `swagger_endpoint` value from the Terraform output and open it in a browser.
+2. Build and test the microservices locally. Each microservice has its own directory within the repository.
 
-## Security
+3. Configure your AWS credentials using the AWS CLI:
 
-For information about security issue notifications, refer to the [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) file.
+   ```shell
+   aws configure
+   ```
+
+4. Deploy the required infrastructure for Zenith. The infrastructure setup is defined in the `infrastructure` directory.
+
+5. Run Checkov to analyze the infrastructure code and identify any misconfigurations or security vulnerabilities:
+
+   ```shell
+   checkov -d infrastructure/
+   ```
+
+   Review the Checkov report and address any identified issues before proceeding with the deployment.
+
+6. Deploy the microservices to AWS ECS Fargate using the provided deployment scripts or CI/CD pipeline.
+
+7. Monitor the deployed microservices using AWS CloudWatch.
+
+For detailed instructions on deploying and managing Zenith, please refer to the [documentation](./docs).
+
+## Contributing
+
+Contributions are welcome! If you'd like to contribute to Zenith, please follow these steps:
+
+1. Fork this repository.
+
+2. Create a new branch for your feature or bug fix:
+
+   ```shell
+   git checkout -b my-feature
+   ```
+
+3. Make the necessary changes and commit them:
+
+   ```shell
+   git commit -m "Implement new feature"
+   ```
+
+4. Push your changes to the forked repository:
+
+   ```shell
+   git push origin my-feature
+   ```
+
+5. Open a pull request in this repository with a detailed description of your changes.
+
+Please review the [contribution guidelines](./CONTRIBUTING.md)
+
+ for more information.
 
 ## License
 
-This repository is licensed under the MIT-0 License. See the [LICENSE](LICENSE) file for more details.
+This project is licensed under the [MIT License](./LICENSE).
+
+## Acknowledgements
+
+We would like to acknowledge the following resources and projects that have inspired and helped us in building Zenith:
+
+- [AWS ECS Documentation](https://docs.aws.amazon.com/ecs)
+- [Docker Documentation](https://docs.docker.com)
+- [Microservices Architecture](https://microservices.io)
+- [AWS CloudWatch Documentation](https://docs.aws.amazon.com/cloudwatch)
+- [Checkov](https://github.com/bridgecrewio/checkov) - Open-source IaC static code analysis tool.
+
+## Contact
+
+For any questions or support, please contact the project maintainers at [Team-Zenith](mailto:eniolaamiola@gmail.com).
+
