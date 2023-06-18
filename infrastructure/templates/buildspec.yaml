@@ -23,13 +23,15 @@ phases:
           echo "Adding Swagger host"
           sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./webapp/server/src/swagger/swagger.js
         fi
-      - echo Running Checkov on infrastructure code...
-      - checkov -d "$FOLDER_PATH" --framework dockerfile
+      - echo Running Checkov scan on the Dockerfile...
+      - checkov -d "${FOLDER_PATH}" --framework dockerfile 
+
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t $REPO_URL $FOLDER_PATH
+
   post_build:
     commands:
       - echo Build completed on `date`
