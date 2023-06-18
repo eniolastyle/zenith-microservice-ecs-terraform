@@ -87,7 +87,7 @@ variable "repository_owner" {
 variable "repository_name" {
   description = "The name of the Github repository"
   type        = string
-  default     = "zenith-microservice-ecs-terraform"
+  default     = "zenith-microservice-ecs-terraform-checkov"
 }
 
 variable "repository_branch" {
